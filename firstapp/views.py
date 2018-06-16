@@ -14,25 +14,22 @@ def index(request):
     wb.create_sheet(title="TemplateConfiguration")
     wb.create_sheet(title="ConfigurableTemplate")
     
-
-    orgs=Organisations.objects.values()
-    temp=Template.objects.values()
-    tempconf=TemplateConfiguration.objects.values()
-    conftemp=ConfigurableTemplate.objects.values()
-    
-    models=[orgs,temp,tempconf,conftemp]
+    models=[Organisations,Template,TemplateConfiguration,ConfigurableTemplate]
 
     i=0
     for ws in wb:
-        r=1
         c=1
-        for o in models[i]:
-            for val in o.values():
-                ws.cell(row=r,column=c).value=val
-                c+=1
-            c=1
-            r+=1
+        m = models[i]._meta.get_fields() 
+        lis = [item.get_internal_type() for item in m]
+        lis=list(filter(lambda a:a!='ForeignKey',lis))
+        lis=list(filter(lambda a:a!='AutoField',lis))
+        print(m)
+        print(lis)
+        for field in lis:
+            ws.cell(row=1,column=c).value=field
+            c+=1
         i+=1
+  
 
     wb.save("data.xlsx")
     return render(request,'firstapp/index.html')
