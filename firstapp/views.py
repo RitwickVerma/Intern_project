@@ -9,27 +9,25 @@ def index(request):
     #return HttpResponse("Hello from firstapp")
     wb=Workbook() 
     ws=wb.active
-    ws.title="Organisations"
-    wb.create_sheet(title="Template")
-    wb.create_sheet(title="TemplateConfiguration")
-    wb.create_sheet(title="ConfigurableTemplate")
     
-    models=[Organisations,Template,TemplateConfiguration,ConfigurableTemplate]
+    orgs=Organisations.objects.all()
 
-    i=0
-    for ws in wb:
-        c=1
-        m = models[i]._meta.get_fields() 
-        lis = [item.get_internal_type() for item in m]
-        lis=list(filter(lambda a:a!='ForeignKey',lis))
-        lis=list(filter(lambda a:a!='AutoField',lis))
-        print(m)
-        print(lis)
-        for field in lis:
-            ws.cell(row=1,column=c).value=field
-            c+=1
-        i+=1
-  
+    def printtoexcel(lis,r):
+        for i in range(len(lis)):
+            ws.cell(row=r,column=i+1).value=lis[i]
+
+    r=1
+    for org in orgs:
+        l1=[org.name,org.description]
+        temps=Template.objects.filter(project__name=org.name)
+        for temp in temps:
+            l2=l1+[temp.name,temp.object_id,temp.type]
+            conftemps=ConfigurableTemplate.objects.filter(template__name=temp.name)
+            for conftemp in conftemps:
+                l3=l2+[conftemp.db_field,conftemp.data_type,conftemp.label,conftemp.required,conftemp.active,conftemp.disabled]
+                printtoexcel(l3,r)
+                r+=1
+
 
     wb.save("data.xlsx")
     return render(request,'firstapp/index.html')

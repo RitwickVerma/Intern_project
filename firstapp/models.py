@@ -2,6 +2,27 @@ from django.db import models
 from jsonfield import JSONField
 #import ContentType
 # Create your models here.
+CONFIG_DATATYPE_LIST = [
+
+('int', 'int'), ('str',
+'str'), ('singleselect',
+'singleselect'),
+
+('multiselect', 
+'multiselect'), ('table', 
+'table'), ('date', 
+'date'),
+
+('float', 
+'float'), ('bool', 
+'bool'), ('url', 
+'url'),
+
+('longstr', 
+'longstr'), ('file', 
+'file'), ('image', 
+'image')]
+
 class Organisations(models.Model):
     name = models.CharField(max_length=248) #organisation name
     description = models.CharField(max_length=248, blank=True, null=True)
@@ -14,7 +35,7 @@ class Template(models.Model):
     name = models.CharField(max_length=127)
     project = models.ForeignKey(Organisations,on_delete=models.CASCADE,)
     sheet = JSONField(default=list)
- #   content_type = models.ForeignKey(ContentType)
+    #content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     type = models.CharField(max_length=127,default='template')
     def __str__(self):
@@ -27,9 +48,9 @@ class TemplateConfiguration(models.Model):
         return str(self.field_sequence)
 
 class ConfigurableTemplate(models.Model):
-    template = models.ForeignKey(Template, related_name='config',on_delete=models.CASCADE,)
+    template = models.ForeignKey(Template,related_name='config',on_delete=models.CASCADE,)
     db_field = models.CharField(max_length=31)
-   # data_type = models.CharField(max_length=31, choices=CONFIG_DATATYPE_LIST)
+    data_type = models.CharField(max_length=31, choices=CONFIG_DATATYPE_LIST,default='int')
     configurable_setting = JSONField()
     label = models.CharField(max_length=127)
     exceptions = JSONField(default=list, null=True, blank=True)
@@ -37,4 +58,5 @@ class ConfigurableTemplate(models.Model):
     active = models.BooleanField(blank=False)
     disabled = models.BooleanField(blank=False)
     def __str__(self):
-        return self.db_field
+        return 'configurable'+self.template.name
+        
