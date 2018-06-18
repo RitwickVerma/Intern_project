@@ -16,7 +16,10 @@ def index(request):
         for i in range(len(lis)):
             ws.cell(row=r,column=i+1).value=lis[i]
 
-    r=1
+    fieldnames=['name','description','template name','object_id','type','db_field','data_type','label','required','active','disabled']
+    printtoexcel(fieldnames,1)
+
+    r=2
     for org in orgs:
         l1=[org.name,org.description]
         temps=Template.objects.filter(project__name=org.name)
