@@ -1,6 +1,10 @@
 from django.db import models
 from jsonfield import JSONField
-#import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericRelation
+
+
 # Create your models here.
 CONFIG_DATATYPE_LIST = [
 
@@ -35,8 +39,9 @@ class Template(models.Model):
     name = models.CharField(max_length=127)
     project = models.ForeignKey(Organisations,on_delete=models.CASCADE,)
     sheet = JSONField(default=list)
-    #content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE,null=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
+    content_object = GenericForeignKey()
     type = models.CharField(max_length=127,default='template')
     def __str__(self):
         return self.name
@@ -59,4 +64,21 @@ class ConfigurableTemplate(models.Model):
     disabled = models.BooleanField(blank=False)
     def __str__(self):
         return 'configurable'+self.template.name
+
+class SubProject(models.Model):
+    name = models.CharField(max_length=248)
+    description = models.CharField(max_length=248, blank=True, null=True)
+    organisation = models.ForeignKey(Organisations,null=True, blank=True, on_delete=models.CASCADE)
+
+class TestType(models.Model):
+    name = models.CharField(max_length=127)
+    project = models.ForeignKey(SubProject, related_name="test_type",on_delete=models.CASCADE)
+    description = models.TextField(max_length=256, null=True, blank=True)
+
+class Protocol(models.Model):
+    name = models.CharField(max_length=127)#validators=[validate_special_character])
+    description = models.TextField(max_length=256, null=True, blank=True)
+    test_type = models.ForeignKey(TestType, related_name="protocol",on_delete=models.CASCADE)
+    template = GenericRelation(Template)
+    condition = JSONField(null=True, blank=True)
         

@@ -2,35 +2,30 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 from .models import *
-from openpyxl import Workbook
+from .utils.excel import *     #custom util (will grow with use)
 
-# Create your views here.
 def index(request):
-    #return HttpResponse("Hello from firstapp")
-    wb=Workbook() 
-    ws=wb.active
+
+    workbook=ExcelFile()
+    worksheet=workbook.get_active_worksheet()
     
-    orgs=Organisations.objects.all()
+    filtered_organisations=Organisations.objects.filter(id=1)
 
-    def printtoexcel(lis,r):
-        for i in range(len(lis)):
-            ws.cell(row=r,column=i+1).value=lis[i]
+    column_headers=['NAME','DESCRIPTION','TEMPLATE NAME','OBJECT_ID','TYPE','DB_FIELD','DATA_TYPE','LABEL','REQUIRED','ACTIVE','DISABLED']
+    worksheet.print_row(column_headers)
 
-    fieldnames=['NAME','DESCRIPTION','TEMPLATE NAME','OBJECT_ID','TYPE','DB_FIELD','DATA_TYPE','LABEL','REQUIRED','ACTIVE','DISABLED']
-    printtoexcel(fieldnames,1)
+    organisation=filtered_organisations[0]
+    list1=[organisation.name,organisation.description]
+    filtered_templates=Template.objects.filter(project__name=organisation.name)
+    
+    for template in filtered_templates:
+        list2=list1+[template.name,template.object_id,template.type]
+        filtered_configurabletemplates=ConfigurableTemplate.objects.filter(template__name=template.name)
+        
+        for configurabletemplate in filtered_configurabletemplates:
+            list3=list2+[configurabletemplate.db_field,configurabletemplate.data_type,configurabletemplate.label,'True' if configurabletemplate.required else 'False','True' if configurabletemplate.active else 'False','True' if configurabletemplate.disabled else 'False']
+            worksheet.print_row(list3)
 
-    r=2
-    for org in orgs:
-        l1=[org.name,org.description]
-        temps=Template.objects.filter(project__name=org.name)
-        for temp in temps:
-            l2=l1+[temp.name,temp.object_id,temp.type]
-            conftemps=ConfigurableTemplate.objects.filter(template__name=temp.name)
-            for conftemp in conftemps:
-                l3=l2+[conftemp.db_field,conftemp.data_type,conftemp.label,'True' if conftemp.required else 'False','True' if conftemp.active else 'False','True' if conftemp.disabled else 'False']
-                printtoexcel(l3,r)
-                r+=1
-
-
-    wb.save("data.xlsx")
+    workbook.save()
+    
     return render(request,'firstapp/index.html')
