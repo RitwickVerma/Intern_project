@@ -7,7 +7,7 @@ from .utils.excel import *     #custom util (will grow with use)
 def index(request):
 
     workbook=ExcelFile()
-    worksheet=workbook.get_active_worksheet()
+    worksheet=workbook.active_excelsheet()
     
     filtered_organisations=Organisations.objects.filter(id=1)
 
@@ -27,5 +27,5 @@ def index(request):
             worksheet.print_row(list3)
 
     workbook.save()
-    
+
     return render(request,'firstapp/index.html')
