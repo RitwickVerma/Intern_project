@@ -2,30 +2,38 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 from .models import *
-from .utils.excel import *     #custom util (will grow with use)
+from .integration.resources import * 
 
 def index(request):
 
-    workbook=ExcelFile()
-    worksheet=workbook.active_excelsheet()
+    excelfile=ExcelFile()
+    excelsheet=excelfile.active_excelsheet()
     
-    filtered_organisations=Organisations.objects.filter(id=1)
+    filtered_organisations=Organisations.objects.filter(id=1).values()
 
-    column_headers=['NAME','DESCRIPTION','TEMPLATE NAME','OBJECT_ID','TYPE','DB_FIELD','DATA_TYPE','LABEL','REQUIRED','ACTIVE','DISABLED']
-    worksheet.print_row(column_headers)
-
+    column_headers=[]
     organisation=filtered_organisations[0]
-    list1=[organisation.name,organisation.description]
-    filtered_templates=Template.objects.filter(project__name=organisation.name)
-    
+
+    column_headers,temporary_list1=get_lists_fields_values(organisation)
+
+    filtered_templates=Template.objects.filter(project__name=organisation['name']).values()
+    flag=True
     for template in filtered_templates:
-        list2=list1+[template.name,template.object_id,template.type]
-        filtered_configurabletemplates=ConfigurableTemplate.objects.filter(template__name=template.name)
+        x,temporary_list2=get_lists_fields_values(template)
+        column_headers+=x
+        temporary_list2=temporary_list1+temporary_list2
+        print(column_headers,temporary_list2)
+        filtered_configurabletemplates=ConfigurableTemplate.objects.filter(template__name=template['name']).values()
         
         for configurabletemplate in filtered_configurabletemplates:
-            list3=list2+[configurabletemplate.db_field,configurabletemplate.data_type,configurabletemplate.label,'True' if configurabletemplate.required else 'False','True' if configurabletemplate.active else 'False','True' if configurabletemplate.disabled else 'False']
-            worksheet.print_row(list3)
+            y,temporary_list3=get_lists_fields_values(configurabletemplate)
+            column_headers+=y
+            temporary_list3=temporary_list2+temporary_list3
+            if(flag):
+                excelsheet.print_row([x.upper() for x in column_headers])
+                flag=False
+            excelsheet.print_row(temporary_list3)
 
-    workbook.save()
+    excelfile.save()
 
     return render(request,'firstapp/index.html')

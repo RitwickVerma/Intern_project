@@ -53,7 +53,7 @@ class ExcelFile:
     
         return self.excelsheets[self.current_active_sheet_index]
         
-   #get index of active worksheet
+    #get index of active worksheet
     def get_active_excelsheet_index(self):
         return self.current_active_sheet_index
     
@@ -70,7 +70,24 @@ class ExcelFile:
             self.excelsheets.insert(excelsheet,index)
             self.active_worksheet(index)
 
+    #can be used temporarily if function isn't available in wrapper. This gives complete access to openpyx
+    def get_openpyxl_workbook_object(self):
+        return self.excelfile
 
     #save the excel file
     def save(self,name='data.xlsx'):
         self.excelfile.save(name)
+
+    
+
+#returns two lists of all fields and all corresponding values 
+def get_lists_fields_values(model,include_id=False):
+    fieldlist=[]
+    valuelist=[]
+    for key,value in model.items():
+        if(key!='id'):
+            fieldlist.append(key)
+            valuelist.append(value)
+    return fieldlist,valuelist
+
+
