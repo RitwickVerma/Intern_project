@@ -28,7 +28,6 @@ def index(request):
         x,temporary_list2=get_fields_values(template)
         column_headers+=x
         temporary_list2=temporary_list1+temporary_list2
-        print(column_headers,temporary_list2)
         filtered_configurabletemplates=ConfigurableTemplate.objects.filter(template__name=template['name']).values()
         
         for configurabletemplate in filtered_configurabletemplates:
@@ -43,6 +42,6 @@ def index(request):
             row+=1
 
     excel=excelsheet.export_xlsx()
-    excel.save()
+    excel.save('data.xlsx')
 
     return render(request,'firstapp/index.html')

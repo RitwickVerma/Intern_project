@@ -37,7 +37,7 @@ class Excel():
         return converted_element
     def export_xlsx(self):
         for index, sheet_name in enumerate(self.sheet_names):
-            ws = self.wb.get_sheet_by_name(str(sheet_name))
+            ws = self.wb[str(sheet_name)]
             for cell in self.worksheet[index]:
                 cell_location = str(cell['column'])+str(cell['row'])
                 cell_value = cell['value']
@@ -53,10 +53,10 @@ class Excel():
                     import ast
                     try:
                         cell_value = ast.literal_eval(str(cell_value))
-                        ws[cell_location] = ','.join(str(value) for value in cell_value)
+                        ws.cell(row=cell['row'],column=cell['column']+1).value = ','.join(str(value) for value in cell_value)
                     except:
                         pass
                 else:
-                    print(cell_location,cell_value)
-                    ws[cell_location] = self.__convert_to_type(cell_value, cell['value_type'])
+                    ws.cell(row=cell['row'],column=cell['column']+1).value=cell_value
+                    #ws['A1'] = self.__convert_to_type(cell_value, cell['value_type'])
         return self.wb
