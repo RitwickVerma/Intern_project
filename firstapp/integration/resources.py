@@ -1,6 +1,6 @@
 from openpyxl import *
 
-class ExcelSheet:
+"""class ExcelSheet:
     def __init__(self,excelsheet):                                       
         self.excelsheet=excelsheet
         self.set_current_row()
@@ -76,9 +76,8 @@ class ExcelFile:
 
     #save the excel file
     def save(self,name='data.xlsx'):
-        self.excelfile.save(name)
+        self.excelfile.save(name)"""
 
-    
 
 #returns two lists of all fields and all corresponding values 
 def get_fields_values(model,include_id=False):
