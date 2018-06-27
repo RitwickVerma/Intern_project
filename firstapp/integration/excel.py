@@ -3,7 +3,7 @@ import openpyxl
 from openpyxl.drawing.image import Image
 import importlib
 from django.conf import settings
-from core.resources import is_blank_or_none
+#from core.resources import is_blank_or_none
 from PIL import Image as PilImage
 import os
 class Excel():
@@ -23,7 +23,7 @@ class Excel():
         cell['value_type'] = value_type
         self.worksheet[index].append(cell)
     def __convert_to_type(self, element, type_):
-        if is_blank_or_none(element):
+        if element==None or element=='':
             element = ''
         converted_element = str(element).strip('\"').replace('\\n',"\n")
         try:
@@ -57,5 +57,6 @@ class Excel():
                     except:
                         pass
                 else:
+                    print(cell_location,cell_value)
                     ws[cell_location] = self.__convert_to_type(cell_value, cell['value_type'])
         return self.wb

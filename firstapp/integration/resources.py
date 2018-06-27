@@ -70,7 +70,7 @@ class ExcelFile:
             self.excelsheets.insert(excelsheet,index)
             self.active_worksheet(index)
 
-    #can be used temporarily if function isn't available in wrapper. This gives complete access to openpyx
+    #can be used temporarily if function isn't available in wrapper. This gives complete access to openpyxl
     def get_openpyxl_workbook_object(self):
         return self.excelfile
 
@@ -81,7 +81,7 @@ class ExcelFile:
     
 
 #returns two lists of all fields and all corresponding values 
-def get_lists_fields_values(model,include_id=False):
+def get_fields_values(model,include_id=False):
     fieldlist=[]
     valuelist=[]
     for key,value in model.items():
